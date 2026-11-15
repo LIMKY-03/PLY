@@ -135,7 +135,10 @@ test('vehicle and passenger room, sector, safety, duplicate and reconnect integr
     await new Promise(resolve=>setTimeout(resolve,1100));
     current=await snap(host.token); assert.equal(current.state,'PAUSED'); assert.match(current.pauseReason,/LEASE_EXPIRED/); evidence.push('missing vehicle report expires lease and pauses');
     const emptyPassenger=report('RESTRICTED','D'); emptyPassenger.seats=[{seat:'REAR_LEFT',occupancy:'EMPTY'}]; await car.send(emptyPassenger);
-    car.ws.close(); await new Promise(resolve=>car.ws.once('close',resolve));
+    const hostDisconnected = rejoined.wait(message =>
+      message.type === 'snapshot' && message.room.vehicle.gateReasons.includes('CAR_DISCONNECTED'));
+    car.ws.close();
+    await hostDisconnected;
     current=await snap(host.token); assert.ok(current.vehicle.gateReasons.includes('CAR_DISCONNECTED'));
     const independent=await rejoined.send(cmd(0,'mobile.collect',{pickupId:'DEMO_PICKUP_C',passengerConfirmed:true}));
     assert.equal(independent.ok,true); assert.equal(independent.data.gpsVerified,false);
