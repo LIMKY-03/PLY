@@ -13,7 +13,7 @@
   }
   async function act(fn){if(busy)return;busy=true;$('host-error').textContent='';render();try{await fn();}catch(e){error(e);}finally{busy=false;render();}}
   function report(){if(!authenticated||ws?.readyState!==WebSocket.OPEN||closed)return;
-    ws.send(JSON.stringify({type:'vehicle.report',commandId:crypto.randomUUID(),reportSeq:++reportSeq,ux:'ALLOWED',gear:$('host-gear').value,foreground:!document.hidden,seats:[],source:'SIMULATED_API_CLIENTS'}));
+    ws.send(JSON.stringify({type:'vehicle.report',commandId:crypto.randomUUID(),reportSeq:++reportSeq,ux:'ALLOWED',gear:$('host-gear').value,foreground:!document.hidden,seats:[],source:'SIMULATED_API_CLIENTS',...(window.PLY_DRIVE_SIM?.vehicleExtra?.()??{})}));
   }
   function render(){
     $('host-create').disabled=busy||authenticated||!configReady;$('host-create').textContent=room&&!closed?'차량 다시 연결':'차량 연결 · 파티 생성';
@@ -67,6 +67,9 @@
   timer=setInterval(()=>{report();if(invite){const seconds=Math.max(0,Math.ceil((invite.expiresAt-Date.now())/1000));$('invite-ttl').textContent=seconds?seconds+'초 남음':'만료 · 새 QR 발급 필요';if(!seconds){$('invite-qr').hidden=true;$('invite-link').hidden=true;}}},2000);
   window.addEventListener('pagehide',()=>{clearInterval(timer);ws?.close();});
   window.addEventListener('pageshow',event=>{if(event.persisted)location.reload();});
+  // drive-sim/(주행 시뮬레이션 패널)처럼 같은 페이지의 확장 스크립트가 차량 연결을 함께 쓰도록 연다.
+  window.PLY_VEHICLE_MOCK=Object.freeze({room:()=>room,authenticated:()=>authenticated,connected:()=>authenticated&&ws?.readyState===WebSocket.OPEN&&!closed,
+    send:message=>ws.send(JSON.stringify({...message,commandId:crypto.randomUUID()})),report,log,error});
   render();
   void (async()=>{try{const response=await fetch(new URL('/api/client-config',origin),{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!response.ok)throw new Error('CONFIG_UNAVAILABLE');const config=await response.json();const required=config.sessionAccessKeyRequired!==false;$('host-key-label').hidden=!required;$('host-key').required=required;configReady=true;status(required?'차량 테스트 접근키를 입력해 주세요.':'공개 시연 · 접근키 없이 차량 파티를 만들 수 있음.');render();}catch(e){error(e);}})();
 })();

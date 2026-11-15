@@ -54,6 +54,11 @@ export function createPhoneClientService({apiOrigin='',displayName='PLY'}={}) {
     const type = SIGN_TYPES[file.split('.').at(-1).toLowerCase()];
     if (type && /^[A-Za-z0-9._-]{1,80}$/.test(file)) assets.set('/play/route-sign/' + file, { bytes: readFileSync(new URL(file, signDir)), type });
   }
+  // 주행 시뮬레이션 패널(차량 목업 확장): drive-sim/ 폴더의 스크립트를 제공한다.
+  const simDir = new URL('./phone-client/drive-sim/', import.meta.url);
+  for (const file of existsSync(simDir) ? readdirSync(simDir) : []) {
+    if (/^[A-Za-z0-9._-]{1,80}\.js$/.test(file)) assets.set('/play/drive-sim/' + file, { bytes: readFileSync(new URL(file, simDir)), type: 'text/javascript; charset=utf-8' });
+  }
   const bundledDrive = new URL('./drive-assets/', import.meta.url);
   const driveRoot = existsSync(bundledDrive) ? bundledDrive : new URL('../minigames/', import.meta.url);
   const driveGamesAvailable = existsSync(driveRoot);
