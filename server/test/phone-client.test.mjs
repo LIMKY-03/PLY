@@ -44,6 +44,7 @@ test('phone reference client serves only allow-listed static assets with same-or
       '/play/ply-lockup.jpg', '/play/ply-symbol.jpg', '/play/ply-road-portrait.jpg',
       '/play/route-sign/config.js', '/play/route-sign/sign-license-quiz.png', '/play/route-sign/sign-pole-jump.png',
       '/play/route-sign/sign-raindrop.png',
+      '/play/drive-sim/drive-sim.js',
       '/play/drive/style.css', '/play/drive/bag.html', '/play/drive/shared/bag.js',
       '/play/drive/shared/item-icons.js', '/play/drive/shared/ply.css', '/play/drive/shared/journey.js', '/play/drive/games/license-quiz/index.html',
       '/play/drive/games/license-quiz/questions.json', '/play/drive/games/pole-jump/index.html',
